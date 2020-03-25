@@ -1,6 +1,3 @@
-#include "RedBlackTree.hpp"
-
-
 template<class T>
 RBtree<T>::RBtree(): q(nullptr), root(nullptr){}
 
