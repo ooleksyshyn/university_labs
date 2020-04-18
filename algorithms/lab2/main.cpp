@@ -26,13 +26,43 @@ int main(){
                                     {Department{"lead"}}}
     };
 
-    RedBlackTree<int> obj{10, 4, 5, 1, 3, 7, 9, 12, 2, -1, 0};
 
-    std::cout << obj << std::endl << std::endl;
+    RedBlackTree<Company> company_tree;
 
-    obj.remove(9);
+    for (auto company : companies){
+        company_tree.insert(company);
+    }
 
-    std::cout << obj;
+    for (int i = 0; i < company_tree.size(); ++i){
+        std::cout << company_tree[i]->key << std::endl;
+    }
+
+    company_tree.remove(Company{"Google",
+                                {Department{"technical",
+                                            {Employee{"Oleksii"},
+                                             Employee{"Ostap"},
+                                             Employee{"Daniil"}
+                                            }}
+                                }}
+                                );
+
+    std::cout << company_tree << std::endl;
+
+
+
+    // test on integers
+    /*
+    RedBlackTree<int> int_tree{10, 4, 5, 1, 3, 7, 9, 12, 2, -1, 0};
+
+    std::cout << int_tree << std::endl << std::endl;
+
+    int_tree.remove(9);
+
+    std::cout << int_tree;
+
+    for (int i = 0; i < int_tree.size(); ++i){
+        std::cout << int_tree[i]->key << " ";
+    }*/
 
     return 0;
 }

@@ -13,6 +13,8 @@ namespace lab {
     class RedBlackTree {
     public:
         struct RedBlackTreeNode {
+            RedBlackTreeNode() = default;
+
             explicit RedBlackTreeNode(const T&,
                     Colour = Colour::Black,
                     std::size_t size = 1,
@@ -53,6 +55,7 @@ namespace lab {
         void remove(const T &key);
         auto search(const T &key) const -> CNodePtr;
         auto operator[](std::size_t) const -> CNodePtr;
+        auto size() const -> std::size_t;
 
         template<class D, class OStream>
         friend OStream &operator<<(OStream &os, const RedBlackTree<D> &tree);

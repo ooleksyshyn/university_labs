@@ -20,12 +20,12 @@ namespace lab {
         NodePtr node = root;
 
         while (true){
-            std::size_t node_index = RedBlackTreeNode::size(root->left);
+            std::size_t node_index = RedBlackTreeNode::size(node->left_);
 
             if (node_index > index){
-                node = node->left;
+                node = node->left_;
             } else if (node_index < index){
-                node = node->right;
+                node = node->right_;
                 index -= node_index + 1;
             } else{
                 return node;
@@ -41,6 +41,7 @@ namespace lab {
         NodePtr predecessor = nullptr;
 
         while(head != nullptr){
+            ++head->size_;
             predecessor = head;
 
             if (head->key > key){
@@ -113,6 +114,7 @@ namespace lab {
 
     template<class T>
     void RedBlackTree<T>::left_rotate(NodePtr node) {
+
         NodePtr right = node->right_;
 
         NodePtr middle_subtree = right->left_;
@@ -136,6 +138,9 @@ namespace lab {
         if (middle_subtree){
             middle_subtree->parent_ = node;
         }
+
+        right->size_ = node->size_;
+        node->size_ = Node::size(node->left_) + Node::size(node->right_) + 1;
     }
 
     template<class T>
@@ -163,6 +168,9 @@ namespace lab {
         if (middle_subtree){
             middle_subtree->parent_ = node;
         }
+
+        left->size_ = node->size_;
+        node->size_ = Node::size(node->left_) + Node::size(node->right_) + 1;
     }
 
 
@@ -207,6 +215,18 @@ namespace lab {
             node_to_delete = Node::successor(node);
         }
 
+
+        //update size
+        NodePtr head = root;
+        while(head != node_to_delete){
+            --head->size_;
+            if (head->key > node_to_delete->key){
+                head = head->left_;
+            } else{
+                head = head->right_;
+            }
+        }
+
         NodePtr node_to_fix;
         bool delete_node_to_fix = false;
 
@@ -215,7 +235,8 @@ namespace lab {
         } else if (Node::right(node_to_delete) != nullptr){
             node_to_fix = Node::right(node_to_delete);
         } else{
-            node_to_fix = new Node(0, Colour::Black, 0);
+            node_to_fix = new Node;
+            node_to_fix->colour_ = Colour::Black;
             delete_node_to_fix = true;
             node_to_delete->right_ = node_to_fix;
         }
@@ -315,10 +336,17 @@ namespace lab {
         node->colour_ = Colour::Black;
     }
 
+
+    template<class T>
+    auto RedBlackTree<T>::size() const -> std::size_t {
+        return Node::size(root);
+    }
+
     template<class D, class OStream>
     OStream &operator<<(OStream &os, const RedBlackTree <D> &tree) {
         RedBlackTree<D>::Node::print_node(os, tree.root, 0);
 
         return os;
     }
+
 }

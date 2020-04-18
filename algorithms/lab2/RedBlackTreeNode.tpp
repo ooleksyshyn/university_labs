@@ -91,7 +91,7 @@ namespace lab{
 
         Node::print_node(os, node->left_, depth + 1);
 
-        os << std::string(2 * depth, ' ') << colour << " " << node->key << "\n";
+        os << std::string(2 * depth, ' ') << colour << " " << node->key << ", size:" << node->size_ << "\n";
 
         Node::print_node(os, node->right_, depth + 1);
     }
