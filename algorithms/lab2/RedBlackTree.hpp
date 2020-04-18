@@ -2,37 +2,68 @@
 
 #include <iostream>
 
-enum class Colour{Black, Red};
+namespace lab {
 
-template<class T>
-struct Node{
-
-    T key;
-    Node *parent;
-    Colour color;
-    Node *left;
-    Node *right;
-};
+    enum class Colour {
+        Black, Red
+    };
 
 
-template<class T>
-class RBtree{
-    Node<T> *root;
-    Node<T> *q;
-public:
-    RBtree();
+    template<class T>
+    class RedBlackTree {
+    public:
+        struct RedBlackTreeNode {
+            explicit RedBlackTreeNode(const T&,
+                    Colour = Colour::Black,
+                    std::size_t size = 1,
+                    RedBlackTreeNode *parent = nullptr,
+                    RedBlackTreeNode *left = nullptr,
+                    RedBlackTreeNode *right = nullptr
+                            );
 
-    void insert(T);
-    void insertfix(Node<T> *);
-    void leftrotate(Node<T> *);
-    void rightrotate(Node<T> *);
-    void del(T);
-    auto successor(Node<T> *) -> Node<T>*;
-    void delfix(Node<T> *);
-    void disp();
-    void display(Node<T> *);
-    void search();
-};
+            static std::size_t size(RedBlackTreeNode*);
+            static Colour colour(RedBlackTreeNode*);
+            static RedBlackTreeNode* parent(RedBlackTreeNode*);
+            static RedBlackTreeNode* left(RedBlackTreeNode*);
+            static RedBlackTreeNode* right(RedBlackTreeNode*);
+            static RedBlackTreeNode* successor(RedBlackTreeNode*);
+            static RedBlackTreeNode* predecessor(RedBlackTreeNode*);
 
+            T key;
+            Colour colour_;
+            std::size_t size_;
+            RedBlackTreeNode* parent_;
+            RedBlackTreeNode* left_;
+            RedBlackTreeNode* right_;
+        };
+
+        using NodePtr = RedBlackTreeNode *;
+        using CNodePtr = const RedBlackTreeNode *;
+        using Node = RedBlackTreeNode;
+
+
+        RedBlackTree();
+
+        RedBlackTree(std::initializer_list<T>);
+
+        void insert(const T &key);
+        void insert_fix(NodePtr);
+        void left_rotate(NodePtr);
+        void right_rotate(NodePtr);
+        void remove(const T &key);
+        void remove_fix(NodePtr);
+        auto search(const T &key) const -> CNodePtr;
+        auto operator[](std::size_t) const -> CNodePtr;
+
+        template<class D, class OStream>
+        friend OStream &operator<<(OStream &os, const RedBlackTree<D> &tree);
+
+    private:
+        template<class OStream>
+        static void print_node(OStream &, NodePtr, int depth);
+
+        NodePtr root;
+    };
+}
 
 #include "RedBlackTree.tpp"

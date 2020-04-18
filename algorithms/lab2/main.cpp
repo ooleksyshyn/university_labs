@@ -8,7 +8,6 @@
 using namespace lab;
 
 int main(){
-
     std::array companies = {Company{"Google",
                                     {Department{"technical",
                                                 {Employee{"Oleksii"},
@@ -27,14 +26,9 @@ int main(){
                                     {Department{"lead"}}}
     };
 
-    RBtree<Company> obj;
+    RedBlackTree<int> obj{10, 4, 5, 1, 3, 7, 9, 12, 2, -1, 0};
 
-    for (auto company : companies){
-        obj.insert(company);
-    }
-
-
-    obj.disp();
+    std::cout << obj;
 
     return 0;
 }

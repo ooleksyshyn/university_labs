@@ -55,7 +55,7 @@ namespace lab {
 
 
     bool operator< (const Company& lhs, const Company& rhs) {
-        return lhs.size() < rhs.size();
+        return lhs.name < rhs.name;
     }
 
     bool operator== (const Company& lhs, const Company& rhs) {
@@ -63,7 +63,7 @@ namespace lab {
     }
 
     bool operator> (const Company& lhs, const Company& rhs) {
-        return lhs.size() > rhs.size();
+        return lhs.name > rhs.name;
     }
 
     bool operator< (const Department& lhs, const Department& rhs) {
