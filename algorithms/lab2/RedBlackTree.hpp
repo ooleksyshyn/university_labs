@@ -50,11 +50,7 @@ namespace lab {
         RedBlackTree(std::initializer_list<T>);
 
         void insert(const T &key);
-        void insert_fix(NodePtr);
-        void left_rotate(NodePtr);
-        void right_rotate(NodePtr);
         void remove(const T &key);
-        void remove_fix(NodePtr);
         auto search(const T &key) const -> CNodePtr;
         auto operator[](std::size_t) const -> CNodePtr;
 
@@ -62,6 +58,11 @@ namespace lab {
         friend OStream &operator<<(OStream &os, const RedBlackTree<D> &tree);
 
     private:
+        void remove_fix(NodePtr);
+        void insert_fix(NodePtr);
+        void left_rotate(NodePtr);
+        void right_rotate(NodePtr);
+
         NodePtr root;
     };
 }

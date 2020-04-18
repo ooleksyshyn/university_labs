@@ -28,6 +28,10 @@ int main(){
 
     RedBlackTree<int> obj{10, 4, 5, 1, 3, 7, 9, 12, 2, -1, 0};
 
+    std::cout << obj << std::endl << std::endl;
+
+    obj.remove(9);
+
     std::cout << obj;
 
     return 0;

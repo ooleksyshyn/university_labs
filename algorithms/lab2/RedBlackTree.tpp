@@ -212,15 +212,16 @@ namespace lab {
 
         if (Node::left(node_to_delete) != nullptr){
             node_to_fix = Node::left(node_to_delete);
-        } else if (Node::right(node_to_delete != nullptr)){
+        } else if (Node::right(node_to_delete) != nullptr){
             node_to_fix = Node::right(node_to_delete);
         } else{
             node_to_fix = new Node(0, Colour::Black, 0);
             delete_node_to_fix = true;
+            node_to_delete->right_ = node_to_fix;
         }
 
 
-        node_to_fix->parent_ = node_to_delete->parent;
+        node_to_fix->parent_ = node_to_delete->parent_;
 
 
         if (Node::parent(node_to_delete) == nullptr){
@@ -233,9 +234,6 @@ namespace lab {
 
         if (node_to_delete != node){
             node->key = node_to_delete->key;
-            node->left_ = node_to_delete->left_;
-            node->right_ = node_to_delete->right_;
-            node->colour_ = node_to_delete->colour_;
         }
 
         if (node_to_delete->colour_ == Colour::Black){
@@ -244,12 +242,83 @@ namespace lab {
 
         delete node_to_delete;
         if (delete_node_to_fix){
+            if (Node::right(Node::parent(node_to_fix)) == node_to_fix){
+                node_to_fix->parent_->right_ = nullptr;
+            } else if (Node::left(Node::parent(node_to_fix)) == node_to_fix){
+                node_to_fix->parent_->left_ = nullptr;
+            }
+
             delete node_to_fix;
         }
     }
 
+
+    template<class T>
+    void RedBlackTree<T>::remove_fix(NodePtr node) {
+        while(node != root && node->colour_ == Colour::Black){
+            if (node == node->parent_->left_){
+                NodePtr sibling = node->parent_->right_;
+                if (Node::colour(sibling) == Colour::Red){
+                    sibling->colour_ = Colour::Black;
+                    node->parent_->colour_ = Colour::Red;
+                    left_rotate(node->parent_);
+                    sibling = Node::right(node->parent_);
+                }
+
+                if (Node::colour(Node::left(sibling)) == Colour::Black && Node::colour(Node::right(sibling)) == Colour::Black){
+                    sibling->colour_ = Colour::Red;
+                    node = node->parent_;
+                } else {
+                    if (Node::colour(Node::right(sibling)) == Colour::Black){
+                        sibling->left_->colour_ = Colour::Black;
+                        sibling->colour_ = Colour::Red;
+                        right_rotate(sibling);
+                        sibling = node->parent_->right_;
+                    }
+
+                    sibling->colour_ = node->parent_->colour_;
+                    node->parent_->colour_ = Colour::Black;
+                    sibling->right_->colour_ = Colour::Black;
+                    left_rotate(node->parent_);
+                    node = root;
+                }
+
+            } else{
+                NodePtr sibling = node->parent_->left_;
+                if (Node::colour(sibling) == Colour::Red){
+                    sibling->colour_ = Colour::Black;
+                    node->parent_->colour_ = Colour::Red;
+                    right_rotate(node->parent_);
+                    sibling = Node::left(node->parent_);
+                }
+
+                if (Node::colour(Node::right(sibling)) == Colour::Black && Node::colour(Node::left(sibling)) == Colour::Black){
+                    sibling->colour_ = Colour::Red;
+                    node = node->parent_;
+                } else {
+                    if (Node::colour(Node::left(sibling)) == Colour::Black){
+                        sibling->right_->colour_ = Colour::Black;
+                        sibling->colour_ = Colour::Red;
+                        left_rotate(sibling);
+                        sibling = node->parent_->left_;
+                    }
+
+                    sibling->colour_ = node->parent_->colour_;
+                    node->parent_->colour_ = Colour::Black;
+                    sibling->left_->colour_ = Colour::Black;
+                    right_rotate(node->parent_);
+                    node = root;
+                }
+            }
+        }
+
+        node->colour_ = Colour::Black;
+    }
+
     template<class D, class OStream>
     OStream &operator<<(OStream &os, const RedBlackTree <D> &tree) {
-        RedBlackTree<D>::Node::print_node(os, tree.root, 0);;
+        RedBlackTree<D>::Node::print_node(os, tree.root, 0);
+
+        return os;
     }
 }
