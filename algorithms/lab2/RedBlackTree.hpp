@@ -29,6 +29,9 @@ namespace lab {
             static RedBlackTreeNode* successor(RedBlackTreeNode*);
             static RedBlackTreeNode* predecessor(RedBlackTreeNode*);
 
+            template<class OStream>
+            static void print_node(OStream &, RedBlackTreeNode*, int depth);
+
             T key;
             Colour colour_;
             std::size_t size_;
@@ -59,11 +62,9 @@ namespace lab {
         friend OStream &operator<<(OStream &os, const RedBlackTree<D> &tree);
 
     private:
-        template<class OStream>
-        static void print_node(OStream &, NodePtr, int depth);
-
         NodePtr root;
     };
 }
 
+#include "RedBlackTreeNode.tpp"
 #include "RedBlackTree.tpp"

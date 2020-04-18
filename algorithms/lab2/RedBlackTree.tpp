@@ -16,79 +16,6 @@ namespace lab {
 
 
     template<class T>
-    RedBlackTree<T>::RedBlackTreeNode::RedBlackTreeNode(
-            const T& key,
-            Colour colour,
-            std::size_t size,
-            RedBlackTreeNode *parent,
-            RedBlackTreeNode *left,
-            RedBlackTreeNode *right
-                    ) : key(key), colour_(colour), size_(size), parent_(parent), left_(left), right_(right){}
-
-
-    template<class T>
-    std::size_t RedBlackTree<T>::RedBlackTreeNode::size(RedBlackTreeNode* node) {
-        if (node == nullptr) return 0;
-
-        return node->size_;
-    }
-
-    template<class T>
-    Colour RedBlackTree<T>::RedBlackTreeNode::colour(RedBlackTreeNode* node) {
-        if (node == nullptr) return Colour::Black;
-        return node->colour_;
-    }
-
-    template<class T>
-    auto RedBlackTree<T>::RedBlackTreeNode::parent(NodePtr node) -> NodePtr {
-        if (node == nullptr) return nullptr;
-        return node->parent_;
-    }
-
-    template<class T>
-    auto RedBlackTree<T>::RedBlackTreeNode::left(NodePtr node) -> NodePtr {
-        if (node == nullptr) return nullptr;
-        return node->left_;
-    }
-
-    template<class T>
-    auto RedBlackTree<T>::RedBlackTreeNode::right(NodePtr node) -> NodePtr {
-        if (node == nullptr) return nullptr;
-        return node->right_;
-    }
-
-    template<class T>
-    auto RedBlackTree<T>::RedBlackTreeNode::successor(NodePtr node) -> NodePtr {
-        if (node->right_){
-            return node->right_;
-        }
-
-        while(true){
-            if (node->parent_ == nullptr) return nullptr;
-
-            if (node->parent_->right_ != node) return node->parent_;
-
-            node = node->parent_;
-        }
-    }
-
-    template<class T>
-    auto RedBlackTree<T>::RedBlackTreeNode::predecessor(NodePtr node) -> NodePtr {
-        if (node->left_) {
-            return node->left_;
-        }
-
-        while(true){
-            if (node->parent_ == nullptr) return nullptr;
-
-            if (node->parent_->left_ != node) return node->parent_;
-
-            node = node->parent_;
-        }
-    }
-
-
-    template<class T>
     auto RedBlackTree<T>::operator[](std::size_t index) const -> CNodePtr{
         NodePtr node = root;
 
@@ -106,19 +33,6 @@ namespace lab {
         }
     }
 
-    template<class T>
-    template<class OStream>
-    void RedBlackTree<T>::print_node(OStream &os, NodePtr node, int depth) {
-        if (node == nullptr) return;
-
-        std::string colour = (node->colour_ == Colour::Black) ? "B" : "R";
-
-        RedBlackTree<T>::print_node(os, node->left_, depth + 1);
-
-        os << std::string(2 * depth, ' ') << colour << " " << node->key << "\n";
-
-        RedBlackTree<T>::print_node(os, node->right_, depth + 1);
-    }
 
     template<class T>
     void RedBlackTree<T>::insert(const T &key) {
@@ -285,14 +199,57 @@ namespace lab {
 
         if (node == nullptr) return;
 
-        if (node->left_ == nullptr || node->right_ == nullptr){
+        NodePtr node_to_delete;
 
+        if (node->left_ == nullptr || node->right_ == nullptr){
+            node_to_delete = node;
+        } else{
+            node_to_delete = Node::successor(node);
         }
 
+        NodePtr node_to_fix;
+        bool delete_node_to_fix = false;
+
+        if (Node::left(node_to_delete) != nullptr){
+            node_to_fix = Node::left(node_to_delete);
+        } else if (Node::right(node_to_delete != nullptr)){
+            node_to_fix = Node::right(node_to_delete);
+        } else{
+            node_to_fix = new Node(0, Colour::Black, 0);
+            delete_node_to_fix = true;
+        }
+
+
+        node_to_fix->parent_ = node_to_delete->parent;
+
+
+        if (Node::parent(node_to_delete) == nullptr){
+            root = node_to_fix;
+        } else if (node_to_delete == node_to_delete->parent_->left_){
+            node_to_delete->parent_->left_ = node_to_fix;
+        } else{
+            node_to_delete->parent_->right_ = node_to_fix;
+        }
+
+        if (node_to_delete != node){
+            node->key = node_to_delete->key;
+            node->left_ = node_to_delete->left_;
+            node->right_ = node_to_delete->right_;
+            node->colour_ = node_to_delete->colour_;
+        }
+
+        if (node_to_delete->colour_ == Colour::Black){
+            remove_fix(node_to_fix);
+        }
+
+        delete node_to_delete;
+        if (delete_node_to_fix){
+            delete node_to_fix;
+        }
     }
 
     template<class D, class OStream>
     OStream &operator<<(OStream &os, const RedBlackTree <D> &tree) {
-        RedBlackTree<D>::print_node(os, tree.root, 0);;
+        RedBlackTree<D>::Node::print_node(os, tree.root, 0);;
     }
 }
