@@ -1,14 +1,14 @@
 #include "struct.hpp"
-#include "RedBlackTree.hpp"
+
+#include "PersistentSet.hpp"
 
 #include <iostream>
 #include <string>
-#include <array>
 
 using namespace lab;
 
 int main(){
-    std::array companies = {Company{"Google",
+    std::initializer_list<Company> companies = {Company{"Google",
                                     {Department{"technical",
                                                 {Employee{"Oleksii"},
                                                  Employee{"Ostap"},
@@ -26,13 +26,15 @@ int main(){
                                     {Department{"lead"}}}
     };
 
-    RedBlackTree<int> obj{10, 4, 5, 1, 3, 7, 9, 12, 2, -1, 0};
+    PersistentSet<Company> persistent_set;
 
-    std::cout << obj << std::endl << std::endl;
+    for (auto i : companies){
+        persistent_set.add(i);
+    }
 
-    obj.remove(9);
-
-    std::cout << obj;
+    for(auto i : persistent_set.get_roots()){
+        std::cout << i << std::endl;
+    }
 
     return 0;
 }

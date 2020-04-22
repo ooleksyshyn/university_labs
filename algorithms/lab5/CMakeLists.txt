@@ -3,4 +3,4 @@ project(lab6)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(lab2 main.cpp RedBlackTree.hpp RedBlackTree.tpp)
+add_executable(lab2 main.cpp)
