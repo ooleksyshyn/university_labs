@@ -51,6 +51,7 @@ void bigger_test(MatrixMultiplier& multiplier){
     };
 
     REQUIRE(multiplier.multiply(y, x) == yx_result);
+    REQUIRE(multiplier.multiply(x, y) == xy_result);
 
 }
 
