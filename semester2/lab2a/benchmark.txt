@@ -1,0 +1,60 @@
+All elements amounts are 2*2^n and 3*2^n
+
+List
+Elements: 256 Time: 0.001
+Elements: 384 Time: 0.003
+Elements: 512 Time: 0.005
+Elements: 768 Time: 0.014
+Elements: 1024 Time: 0.028
+Elements: 1536 Time: 0.055
+Elements: 2048 Time: 0.104
+Elements: 3072 Time: 0.225
+Elements: 4096 Time: 0.444
+Elements: 6144 Time: 0.948
+Elements: 8192 Time: 1.686
+Elements: 12288 Time: 3.816
+Elements: 16384 Time: 6.886
+Elements: 24576 Time: 15.789
+Elements: 32768 Time: 28.213
+Elements: 49152 Time: 64.04
+Elements: 65536 Time: 113.175
+Elements: 98304 Time: 265.952
+
+Vector
+
+Elements: 384 Time: 0.001
+Elements: 512 Time: 0.002
+Elements: 768 Time: 0.004
+Elements: 1024 Time: 0.007
+Elements: 1536 Time: 0.016
+Elements: 2048 Time: 0.027
+Elements: 3072 Time: 0.052
+Elements: 4096 Time: 0.087
+Elements: 6144 Time: 0.191
+Elements: 8192 Time: 0.33
+Elements: 12288 Time: 0.741
+Elements: 16384 Time: 1.316
+Elements: 24576 Time: 2.945
+Elements: 32768 Time: 5.24
+Elements: 49152 Time: 11.76
+Elements: 65536 Time: 20.95
+Elements: 98304 Time: 47.148
+
+Array
+
+Elements: 512 Time: 0.001
+Elements: 768 Time: 0.003
+Elements: 1024 Time: 0.005
+Elements: 1536 Time: 0.011
+Elements: 2048 Time: 0.02
+Elements: 3072 Time: 0.04
+Elements: 4096 Time: 0.068
+Elements: 6144 Time: 0.144
+Elements: 8192 Time: 0.246
+Elements: 12288 Time: 0.54
+Elements: 16384 Time: 0.947
+Elements: 24576 Time: 2.105
+Elements: 32768 Time: 3.745
+Elements: 49152 Time: 8.384
+Elements: 65536 Time: 14.958
+Elements: 98304 Time: 34.278
