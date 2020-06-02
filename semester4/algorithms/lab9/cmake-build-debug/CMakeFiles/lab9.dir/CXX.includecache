@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/oleksii/CLionProjects/semester4/algorithms/lab9/graph.hpp
+vector
+-
+utility
+-
+limits
+-
+algorithm
+-
+queue
+-
+random
+-
+
+/home/oleksii/CLionProjects/semester4/algorithms/lab9/main.cpp
+iostream
+-
+array
+-
+graph.hpp
+/home/oleksii/CLionProjects/semester4/algorithms/lab9/graph.hpp
+struct.hpp
+/home/oleksii/CLionProjects/semester4/algorithms/lab9/struct.hpp
+
+/home/oleksii/CLionProjects/semester4/algorithms/lab9/struct.hpp
+vector
+-
+string
+-
+

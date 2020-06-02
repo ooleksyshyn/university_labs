@@ -1,0 +1,1 @@
+/usr/bin/g++-8  -g   CMakeFiles/lab2a.dir/main.cpp.o CMakeFiles/lab2a.dir/point.cpp.o CMakeFiles/lab2a.dir/test.cpp.o  -o lab2a 
