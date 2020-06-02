@@ -1,1 +1,0 @@
-/usr/bin/g++-8  -pthread -g   CMakeFiles/lab3a.dir/multiplication.cpp.o CMakeFiles/lab3a.dir/test.cpp.o  -o lab3a 

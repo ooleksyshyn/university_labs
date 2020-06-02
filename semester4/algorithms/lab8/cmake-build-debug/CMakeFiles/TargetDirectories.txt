@@ -1,3 +1,0 @@
-/home/oleksii/CLionProjects/semester4/algorithms/lab8/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/oleksii/CLionProjects/semester4/algorithms/lab8/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/oleksii/CLionProjects/semester4/algorithms/lab8/cmake-build-debug/CMakeFiles/lab8.dir

@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/media">
-        <file>media/dinosaur.mp4</file>
-    </qresource>
-</RCC>
