@@ -59,14 +59,12 @@ bool show_quit_message() {
     pthread_create(&thread_check_quit, NULL, check_quit_message, NULL);
     pthread_t thread_wait_quit;
     pthread_create(&thread_wait_quit, NULL, wait_for, NULL);
-
     pthread_cond_wait(&wait_for_quit, &wait_mutex);
-
-    pthread_mutex_unlock(&wait_mutex);
 
     pthread_cancel(thread_check_quit);
     pthread_cancel(thread_wait_quit);
 
+    pthread_mutex_unlock(&wait_mutex);
 
     if (need_quit) {
         printf("Cancelling the calculations...\n");
@@ -124,7 +122,6 @@ void manager() {
     while (true) {
         pthread_mutex_lock(&manager_mutex);
         pthread_cond_wait(&something_happened, &manager_mutex);
-        pthread_mutex_unlock(&manager_mutex);
         if (need_quit)
             return;
         if (g_ready && f_ready) {
@@ -150,6 +147,8 @@ void manager() {
                 return;
             }
         }
+
+        pthread_mutex_unlock(&manager_mutex);
     }
 }
 
