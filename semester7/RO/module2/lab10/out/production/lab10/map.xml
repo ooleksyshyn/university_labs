@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE map SYSTEM "map.dtd">
+<map>
+    <regionalRailway id="reg4" name="West railway">
+        <station id="st9" name="" railwayConnections="12" regionId="reg4"/>
+    </regionalRailway>
+    <regionalRailway id="x0" name="prekol">
+        <station id="x1" name="Chernivtsi" railwayConnections="50" regionId="x0"/>
+        <station id="st5" name="prekol" railwayConnections="15" regionId="x0"/>
+    </regionalRailway>
+    <regionalRailway id="reg1" name="PREJOBGOE">
+        <station id="st1" name="Kyiv" railwayConnections="200" regionId="reg1"/>
+        <station id="st3" name="Kyiv2" railwayConnections="12" regionId="reg1"/>
+    </regionalRailway>
+    <regionalRailway id="reg3" name="region">
+        <station id="st7" name="agsdfnbjio;no;uigeraansedokjvns" railwayConnections="0" regionId="reg3"/>
+    </regionalRailway>
+    <regionalRailway id="reg2" name="Region1">
+        <station id="st4" name="St2" railwayConnections="100" regionId="reg2"/>
+        <station id="st6" name="st" railwayConnections="12" regionId="reg2"/>
+        <station id="st8" name="mdaaaaaaaa" railwayConnections="12" regionId="reg2"/>
+    </regionalRailway>
+</map>

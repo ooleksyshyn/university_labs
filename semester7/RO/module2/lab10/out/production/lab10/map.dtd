@@ -1,0 +1,13 @@
+<!ELEMENT map (regionalRailway*)>
+        <!ELEMENT regionalRailway (station*)>
+        <!ELEMENT station (#PCDATA)>
+        <!ATTLIST regionalRailway
+                id ID #REQUIRED
+                name CDATA #REQUIRED
+                >
+        <!ATTLIST station
+                id ID #REQUIRED
+                regionId IDREF #REQUIRED
+                name CDATA #REQUIRED
+                railwayConnections CDATA #REQUIRED
+                >
