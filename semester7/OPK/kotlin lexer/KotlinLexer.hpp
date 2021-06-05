@@ -8,6 +8,9 @@
 
 class KotlinLexer {
 public:
+    /// @todo string literals
+    /// @todo char literals
+    /// @todo fix multi line comments
     struct Token {
         enum class Type {
             HARD_KEYWORD,
