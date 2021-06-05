@@ -1,9 +1,9 @@
-import pytest
 from binary_exponent import exponent_modulo
 from euklid_extended import euklid_extended
 from fermat import check_prime_fermat
 from karazuba import karazuba_multiplication
 from miller_rabin import check_prime_miller_rabin
+from montgommery import MontgomeryMultiplier
 
 
 def test_binary_exponent():
@@ -43,3 +43,8 @@ def test_karazuba():
 def test_euklid_extended():
     assert euklid_extended(120, 43) == (1, 19, -53)
     assert euklid_extended(120, 23) == (1, -9, 47)
+
+
+def test_montgomery():
+    assert MontgomeryMultiplier(3, 5, 7).multiply() == 5
+    assert MontgomeryMultiplier(7, 12, 10).multiply() == 1
