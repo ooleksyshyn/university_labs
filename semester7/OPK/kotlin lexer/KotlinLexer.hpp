@@ -7,7 +7,6 @@
 
 
 class KotlinLexer {
-    class Impl;
 public:
     struct Token {
         enum class Type {
@@ -15,8 +14,9 @@ public:
             SOFT_KEYWORD,
             WORD,
             COMMENT,
-            BRACKET,
-            OPERATOR,
+            ARITHMETICAL_OPERATOR, // arithmetical operator (incl. logical, excl. '*')
+            OPERATOR, // non-arithmetical operators and punctuation marks
+            STAR, // '*' -- can be used as operator and array unpacking
         };
 
         Token(std::string&& text, Type type) noexcept;
