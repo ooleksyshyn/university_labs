@@ -17,6 +17,8 @@ public:
             ARITHMETICAL_OPERATOR, // arithmetical operator (incl. logical, excl. '*')
             OPERATOR, // non-arithmetical operators and punctuation marks
             STAR, // '*' -- can be used as operator and array unpacking
+            LITERAL,
+            ERROR,
         };
 
         Token(std::string&& text, Type type) noexcept;

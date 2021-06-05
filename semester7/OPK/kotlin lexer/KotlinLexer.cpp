@@ -107,7 +107,7 @@ namespace {
         constexpr bool is_punctuation(const char ch) {
             constexpr std::array punctuation = {
                     '{', '}', '[', ']', '(', ')',
-                    ',', ';', '@', '_'
+                    ',', ';', '@'
             };
             return contains(punctuation, ch);
         }
@@ -139,6 +139,9 @@ namespace {
                 QUESTION_MARK,
                 INTEGER_LITERAL,
                 ZERO,
+                UNDERSCORE,
+
+                FLOAT_LITERAL,
 
                 ERROR,
             };
@@ -155,13 +158,27 @@ namespace {
             void handle(const char ch) {
                 static const std::unordered_map<State, Handler> handlers = {
                         {State::EMPTY, &This::handleEmpty},
-                        {State::TEXT, &This::handleEmpty},
+                        {State::TEXT, &This::handleText},
                         {State::COMMENT, &This::handleComment},
                         {State::MULTI_LINE_COMMENT, &This::handleMultiLineComment},
                         {State::POINT, &This::handlePoint},
                         {State::PLUS, &This::handlePlus},
-                        {State::COMBINED_OPERATOR_START, &This::handleCombinedOperator},
+                        {State::MINUS, &This::handleMinus},
+                        {State::STAR, &This::handleStar},
                         {State::SLASH, &This::handleSlash},
+                        {State::EQUAL, &This::handleEqual},
+                        {State::NOT, &This::handleNot},
+                        {State::COMBINED_OPERATOR_START, &This::handleCombinedOperator},
+                        {State::AMPERSAND, &This::handleAmpersand},
+                        {State::DOUBLE_DOT, &This::handleDoubleDot},
+                        {State::QUESTION_MARK, &This::handleQuestionMark},
+                        {State::INTEGER_LITERAL, &This::handleIntegerLiteral},
+                        {State::ZERO, &This::handleZero},
+                        {State::UNDERSCORE, &This::handleUnderscore},
+
+                        {State::FLOAT_LITERAL, &This::handleFloatLiteral},
+
+                        {State::ERROR, &This::handleError},
                 };
 
                 if (const auto handlerIt = handlers.find(state); handlerIt != handlers.end()) {
@@ -197,7 +214,8 @@ namespace {
                     current_token = ch;
                     push_token(Type::OPERATOR);
                 } else if (ch == '0') {
-                    // ???
+                    state = State::ZERO;
+                    current_token.push_back(ch);
                 } else if (std::isdigit(ch)) {
                     state = State::INTEGER_LITERAL;
                     current_token.push_back(ch);
@@ -216,18 +234,258 @@ namespace {
                 } else if (ch == '?') {
                     state = State::QUESTION_MARK;
                     current_token.push_back(ch);
+                } else if (std::isspace(ch)) {
+                    return;
+                } else if (std::isalpha(ch)) {
+                    state = State::TEXT;
+                    current_token.push_back(ch);
+                } else if (ch == '_') {
+                    state = State::UNDERSCORE;
+                    current_token.push_back(ch);
                 } else {
                     state = State::ERROR;
+                    handleError(ch);
                 }
             }
 
-            void handleText(const char ch);
-            void handleComment(const char ch);
-            void handleMultiLineComment(const char ch);
-            void handlePoint(const char ch);
-            void handlePlus(const char ch);
-            void handleCombinedOperator(const char ch);
-            void handleSlash(const char ch);
+            void handleText(const char ch) {
+                if (std::isalnum(ch) || ch == '_') {
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+
+                    if (is_hard_key_word(current_token)) {
+                        push_token(Type::HARD_KEYWORD);
+                    } else if (is_soft_key_word(current_token)) {
+                        push_token(Type::SOFT_KEYWORD);
+                    } else {
+                        push_token(Type::WORD);
+                    }
+
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleComment(const char ch) {
+                if (ch == '\n') {
+                    push_token(Type::COMMENT);
+                    state = State::EMPTY;
+                } else {
+                    current_token.push_back(ch);
+                }
+            }
+
+            void handleMultiLineComment(const char ch) {
+                if (ch == '/' && current_token.size() > 1 && current_token.back() == '*') {
+                    state = State::EMPTY;
+                    push_token(Type::COMMENT);
+                } else {
+                    current_token.push_back(ch);
+                }
+            }
+
+            void handlePoint(const char ch) {
+                state = State::EMPTY;
+                if (ch == '.') {
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                } else {
+                    push_token(Type::OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handlePlus(const char ch) {
+                state = State::EMPTY;
+                if (ch == '=' || ch == '+') {
+                    current_token.push_back(ch);
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                } else {
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleCombinedOperator(const char ch) {
+                state = State::EMPTY;
+                if (ch == '=') {
+                    current_token.push_back(ch);
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                } else {
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleSlash(const char ch) {
+                if (ch == '*') {
+                    state = State::MULTI_LINE_COMMENT;
+                    current_token.push_back(ch);
+                } else if (ch == '/') {
+                    state = State::COMMENT;
+                    current_token.push_back(ch);
+                } else if (ch == '=') {
+                    state = State::EMPTY;
+                    current_token.push_back(ch);
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleMinus(const char ch) {
+                if (ch == '>' || ch == '-' || ch == '=') {
+                    current_token.push_back(ch);
+                    state = State::EMPTY;
+                    push_token(Type::OPERATOR);
+                } else {
+                    push_token(Type::OPERATOR);
+                    state = State::EMPTY;
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleStar(const char ch) {
+                state = State::EMPTY;
+                if (ch == '=') {
+                    current_token.push_back(ch);
+                    push_token(Type::ARITHMETICAL_OPERATOR);
+                } else {
+                    push_token(Type::STAR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleEqual(const char ch) {
+                if (current_token == "==" && ch == '=') {
+                    current_token.push_back(ch);
+                    state = State::EMPTY;
+                    push_token(Type::OPERATOR);
+                } else if (ch == '=') {
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleNot(const char ch) {
+                if (current_token == "!=" && ch == '=') {
+                    state = State::EMPTY;
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                } else if (ch == '=') {
+                    current_token.push_back(ch);
+                } else if (ch == '!') {
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                    state = State::EMPTY;
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleAmpersand(const char ch) {
+                if (ch == '&') {
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                    state = State::EMPTY;
+                } else {
+                    state = State::ERROR;
+                    handleError(ch);
+                }
+            }
+
+            void handleDoubleDot(const char ch) {
+                state = State::EMPTY;
+                if (ch == ':') {
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                } else {
+                    push_token(Type::OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleQuestionMark(const char ch) {
+                state = State::EMPTY;
+                if (ch == '.' || ch == ':') {
+                    current_token.push_back(ch);
+                    push_token(Type::OPERATOR);
+                } else {
+                    push_token(Type::OPERATOR);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleIntegerLiteral(const char ch) {
+                if (std::isdigit(ch)) {
+                    current_token.push_back(ch);
+                } else if (ch == '.') {
+                    current_token.push_back(ch);
+                    state = State::FLOAT_LITERAL;
+                } else {
+                    push_token(Type::LITERAL);
+                    state = State::EMPTY;
+                }
+            }
+
+            void handleZero(const char ch) {
+                if (std::isdigit(ch)) {
+                    state = State::ERROR;
+                    handleError(ch);
+                } else if (ch == '.') {
+                    state = State::FLOAT_LITERAL;
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                }
+            }
+
+            void handleUnderscore(const char ch) {
+                if (std::isalpha(ch)) {
+                    state = State::TEXT;
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::OPERATOR);
+                }
+            }
+
+            void handleFloatLiteral(const char ch) {
+                if (std::isdigit(ch)) {
+                    current_token.push_back(ch);
+                } else if (ch == '.' && current_token.back() == '.') {
+                    // integer literal and range operator
+                    current_token.pop_back();
+                    push_token(Type::LITERAL);
+                    current_token = "..";
+                    push_token(Type::OPERATOR);
+                    state = State::EMPTY;
+                } else if (ch == '.' || current_token.back() == '.') {
+                    // two dots in float literal or float literal with dot as last character
+                    state = State::ERROR;
+                    handleError(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                    handleEmpty(ch);
+                }
+            }
+
+            void handleError(const char ch) {
+                state = State::EMPTY;
+                current_token.push_back(ch);
+                push_token(Type::ERROR);
+            }
+
+
         public:
             std::vector<Token> operator() (const std::string_view line) {
                 tokens.clear();

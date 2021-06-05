@@ -1,18 +1,20 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <filesystem>
 
 #include "KotlinLexer.hpp"
 
 int main() {
-    std::ifstream file("file.txt");
+    const auto path = std::filesystem::current_path().parent_path() / "code_sample.txt";
 
-    KotlinLexer lexer;
-    std::string line;
-    std::vector<KotlinLexer::Token> tokens;
+    std::ifstream file(path);
+    std::string code((std::istreambuf_iterator<char>(file)),
+                    std::istreambuf_iterator<char>());
 
-    while (std::getline(file, line)) {
-        auto line_tokens = KotlinLexer::run(line);
+    const auto tokens = KotlinLexer::run(code);
+
+    for (const auto& [text, type] : tokens) {
+        std::cout << "Token " << static_cast<int>(type) << " : " << text << std::endl;
     }
 
     return 0;
