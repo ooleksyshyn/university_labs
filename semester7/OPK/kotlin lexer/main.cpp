@@ -8,11 +8,12 @@ int main() {
     const auto path = std::filesystem::current_path().parent_path() / "code_sample.txt";
 
     std::ifstream file(path);
-    std::string code((std::istreambuf_iterator<char>(file)),
-                    std::istreambuf_iterator<char>());
+    const std::string code{std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>()};
 
-    std::cout << code << std::endl;
+    std::cout << "Code:\n" << code << std::endl;
     const auto tokens = KotlinLexer::run(code);
+
+    std::cout << "\nTokens:\n";
 
     for (const auto& [text, type] : tokens) {
         std::cout << "Token " << tokenName(type) << " : " << text << std::endl;

@@ -4,20 +4,10 @@
  */
 
 fun main() {
-    // this is my fancy Kotlin code!
-    println("Hello, world!!! ")
-    var x = 10.9
-    var y = '\''
-    var z = '\uFFFF'
-    var t = '\p'
-    var p = '\uFFFFF'
-    var eyru = ":shb248hgb98n\"bsdrtyohj04"
-    var eyru_2 = ":shb248hgb98n\\\"bsdrtyohj04"
-    for (i in 1..10)
-    	println(i)
-    var dvbfk47 = '1'
+    var x = 0
+    var x1 = .0
+    var x2 = 000_0.00
+    var x3 = 000_0.00f
+    for (i in range 1_0..10)
+    var x4 = 000_0.00.call()
 }
-
-/**
- * You can edit, run, and share this code.
- * play.kotlinlang.org

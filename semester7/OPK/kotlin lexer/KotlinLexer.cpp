@@ -164,6 +164,8 @@ namespace {
                 FLOAT_LITERAL,
                 SPECIAL_SYMBOL_IN_CHAR_LITERAL,
                 UNICODE_CHAR_LITERAL,
+                BINARY_LITERAL,
+                HEX_LITERAL,
 
                 ERROR,
             };
@@ -203,6 +205,8 @@ namespace {
                         {State::FLOAT_LITERAL, &This::handleFloatLiteral},
                         {State::SPECIAL_SYMBOL_IN_CHAR_LITERAL, &This::handleSpecialChar},
                         {State::UNICODE_CHAR_LITERAL, &This::handleUnicodeChar},
+                        {State::BINARY_LITERAL, &This::handleBinaryLiteral},
+                        {State::HEX_LITERAL, &This::handleHexLiteral},
 
                         {State::ERROR, &This::handleError},
                 };
@@ -311,7 +315,7 @@ namespace {
             }
 
             void handleMultiLineComment(const char ch) {
-                if (ch == '/' && current_token.size() > 1 && current_token.back() == '*') {
+                if (ch == '/' && current_token.back() == '*') {
                     state = State::EMPTY;
                     current_token.push_back(ch);
                     push_token(Type::COMMENT);
@@ -462,7 +466,7 @@ namespace {
             void handleIntegerLiteral(const char ch) {
                 if (std::isdigit(ch)) {
                     current_token.push_back(ch);
-                } if (ch == '.' && current_token.back() == '_') {
+                } else if (ch == '.' && current_token.back() == '_') {
                     state = State::ERROR;
                     handleError(ch);
                 } else if (ch == '.') {
@@ -473,22 +477,31 @@ namespace {
                 } else if (current_token.back() == '_') {
                     state = State::ERROR;
                     handleError(ch);
-                } else {
-                    push_token(Type::LITERAL);
+                } else if (ch == 'L' || std::tolower(ch) == 'u') {
+                    current_token.push_back(ch);
                     state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                    handleEmpty(ch);
                 }
             }
 
             void handleZero(const char ch) {
-                if (std::isdigit(ch)) {
-                    state = State::ERROR;
-                    handleError(ch);
-                } else if (ch == '.') {
+                if (std::tolower(ch) == 'x') {
+                    state = State::HEX_LITERAL;
+                    current_token.push_back(ch);
+                } if (std::tolower(ch) == 'b') {
+                    state = State::BINARY_LITERAL;
+                    current_token.push_back(ch);
+                } else if (std::isdigit(ch) || ch == '.') {
                     state = State::FLOAT_LITERAL;
                     current_token.push_back(ch);
                 } else {
                     state = State::EMPTY;
                     push_token(Type::LITERAL);
+                    handleEmpty(ch);
                 }
             }
 
@@ -499,6 +512,7 @@ namespace {
                 } else {
                     state = State::EMPTY;
                     push_token(Type::OPERATOR);
+                    handleEmpty(ch);
                 }
             }
 
@@ -506,8 +520,7 @@ namespace {
                 if (ch == '\n') {
                     state = State::ERROR;
                     handleError(ch);
-                }
-                if (ch == '"') {
+                } else if (ch == '"') {
                     auto i = current_token.size() - 1;
                     std::size_t n_slashes = 0;
                     while (current_token[i] == '\\') {
@@ -543,17 +556,40 @@ namespace {
             }
 
             void handleFloatLiteral(const char ch) {
-                if (std::isdigit(ch)) {
+                const bool hasPoint = contains(current_token, '.');
+
+                if (std::isdigit(ch) || (!hasPoint && ch == '_')) {
                     current_token.push_back(ch);
+                } else if (!hasPoint && ch == '.') {
+                    if (current_token.back() == '_') {
+                        state = State::ERROR;
+                        handleError(ch);
+                    } else {
+                        current_token.push_back(ch);
+                    }
                 } else if (ch == '.' && current_token.back() == '.') {
-                    // integer literal and range operator
-                    current_token.pop_back();
-                    push_token(Type::LITERAL);
-                    current_token = "..";
-                    push_token(Type::OPERATOR);
+                    if (current_token.front() != '0') {
+                        // integer literal and range operator
+                        current_token.pop_back();
+                        push_token(Type::LITERAL);
+                        current_token = "..";
+                        push_token(Type::OPERATOR);
+                        state = State::EMPTY;
+                    } else {
+                        state = State::ERROR;
+                        handleError(ch);
+                    }
+                } else if (hasPoint && ch == '.') {
+                    // operator . on float
                     state = State::EMPTY;
-                } else if (ch == '.' || current_token.back() == '.') {
-                    // two dots in float literal or float literal with dot as last character
+                    push_token(Type::LITERAL);
+                    handleEmpty(ch);
+                } else if (std::tolower(ch) == 'f' && current_token.back() != '.') {
+                    current_token.push_back(ch);
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                } else if (current_token.back() == '.') {
+                    // float literal with dot as last character
                     state = State::ERROR;
                     handleError(ch);
                 } else {
@@ -592,6 +628,38 @@ namespace {
                 }
             }
 
+            void handleBinaryLiteral(const char ch) {
+                if (ch == '0' || ch == '1') {
+                    current_token.push_back(ch);
+                } else if (ch == '_' && std::tolower(current_token.back()) == 'b') {
+                    state = State::ERROR;
+                    handleError(ch);
+                } else if (ch == '_') {
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                    handleEmpty(ch);
+                }
+            }
+
+
+            void handleHexLiteral(const char ch) {
+                if (is_hex_digit(ch)) {
+                    current_token.push_back(ch);
+                } else if (ch == '_' && std::tolower(current_token.back()) == 'x') {
+                    state = State::ERROR;
+                    handleError(ch);
+                } else if (ch == '_') {
+                    current_token.push_back(ch);
+                } else {
+                    state = State::EMPTY;
+                    push_token(Type::LITERAL);
+                    handleEmpty(ch);
+                }
+            }
+
+
             void handleError(const char ch) {
                 state = State::EMPTY;
                 current_token.push_back(ch);
@@ -608,12 +676,12 @@ namespace {
             }
 
         public:
-            std::vector<Token> operator() (const std::string_view line) {
+            std::vector<Token> operator() (const std::string& code) {
                 tokens.clear();
                 current_token.clear();
                 state = State::EMPTY;
 
-                for (const auto ch : line) {
+                for (const auto ch : code) {
                     handle(ch);
                 }
 
@@ -629,7 +697,7 @@ namespace {
 KotlinLexer::Token::Token(std::string&& text, Type type) noexcept : text{std::move(text)}, type{type} {}
 
 
-auto KotlinLexer::run(const std::string_view line) -> std::vector<Token> {
+auto KotlinLexer::run(const std::string& code) -> std::vector<Token> {
     lexer_utils::KotlinLexerImpl impl;
-    return impl(line);
+    return impl(code);
 }

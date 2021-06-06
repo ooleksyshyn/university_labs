@@ -27,7 +27,7 @@ public:
         const Type type;
     };
 
-    [[nodiscard]] static std::vector<Token> run(std::string_view line);
+    [[nodiscard]] static std::vector<Token> run(const std::string& code);
 };
 
 
