@@ -8,18 +8,14 @@
 
 class KotlinLexer {
 public:
-    /// @todo string literals
-    /// @todo char literals
-    /// @todo underscores in numeric literals
     struct Token {
         enum class Type {
             HARD_KEYWORD,
             SOFT_KEYWORD,
-            WORD,
+            IDENTIFIER,
             COMMENT,
             ARITHMETICAL_OPERATOR, // arithmetical operator (incl. logical, excl. '*')
             OPERATOR, // non-arithmetical operators and punctuation marks
-            STAR, // '*' -- can be used as operator and array unpacking
             LITERAL,
             STRING_LITERAL, // string and char
             ERROR,
@@ -33,6 +29,31 @@ public:
 
     [[nodiscard]] static std::vector<Token> run(std::string_view line);
 };
+
+
+constexpr std::string_view tokenName(KotlinLexer::Token::Type type) {
+    using Type = KotlinLexer::Token::Type;
+    switch (type) {
+        case Type::HARD_KEYWORD:
+            return "hard keyword";
+        case Type::SOFT_KEYWORD:
+            return "soft keyword";
+        case Type::IDENTIFIER:
+            return "identifier";
+        case Type::COMMENT:
+            return "comment";
+        case Type::ARITHMETICAL_OPERATOR:
+            return "arithmetical operator";
+        case Type::OPERATOR:
+            return "operator";
+        case Type::LITERAL:
+            return "literal";
+        case Type::STRING_LITERAL:
+            return "string literal";
+        case Type::ERROR:
+            return "error";
+    }
+}
 
 
 #endif //KOTLIN_LEXER_KOTLINLEXER_HPP

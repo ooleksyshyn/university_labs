@@ -15,7 +15,7 @@ int main() {
     const auto tokens = KotlinLexer::run(code);
 
     for (const auto& [text, type] : tokens) {
-        std::cout << "Token " << static_cast<int>(type) << " : " << text << std::endl;
+        std::cout << "Token " << tokenName(type) << " : " << text << std::endl;
     }
 
     return 0;

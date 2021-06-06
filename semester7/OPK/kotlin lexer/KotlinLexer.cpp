@@ -120,6 +120,23 @@ namespace {
             return contains(symbols, ch);
         }
 
+        constexpr bool is_special_slash_symbol(const char ch) {
+            constexpr std::array symbols = {
+                    't', 'b', 'n', 'r', '\'', '"',
+                    '\\', '$',
+            };
+
+            return contains(symbols, ch);
+        }
+
+        constexpr bool is_hex_digit(const char ch) {
+            constexpr std::array hex_letters = {
+                    'a', 'b', 'c', 'd', 'e', 'f'
+            };
+
+            return std::isdigit(ch) || contains(hex_letters, std::tolower(ch));
+        }
+
 
         class KotlinLexerImpl {
             enum class State {
@@ -141,8 +158,12 @@ namespace {
                 INTEGER_LITERAL,
                 ZERO,
                 UNDERSCORE,
+                CHAR_LITERAL,
+                STRING_LITERAL,
 
                 FLOAT_LITERAL,
+                SPECIAL_SYMBOL_IN_CHAR_LITERAL,
+                UNICODE_CHAR_LITERAL,
 
                 ERROR,
             };
@@ -176,8 +197,12 @@ namespace {
                         {State::INTEGER_LITERAL, &This::handleIntegerLiteral},
                         {State::ZERO, &This::handleZero},
                         {State::UNDERSCORE, &This::handleUnderscore},
+                        {State::STRING_LITERAL, &This::handleStringLiteral},
+                        {State::CHAR_LITERAL, &This::handleCharLiteral},
 
                         {State::FLOAT_LITERAL, &This::handleFloatLiteral},
+                        {State::SPECIAL_SYMBOL_IN_CHAR_LITERAL, &This::handleSpecialChar},
+                        {State::UNICODE_CHAR_LITERAL, &This::handleUnicodeChar},
 
                         {State::ERROR, &This::handleError},
                 };
@@ -246,6 +271,12 @@ namespace {
                 } else if (ch == '_') {
                     state = State::UNDERSCORE;
                     current_token.push_back(ch);
+                } else if (ch == '\'') {
+                    state = State::CHAR_LITERAL;
+                    current_token.push_back(ch);
+                } else if (ch == '"') {
+                    state = State::STRING_LITERAL;
+                    current_token.push_back(ch);
                 } else {
                     state = State::ERROR;
                     handleError(ch);
@@ -263,7 +294,7 @@ namespace {
                     } else if (is_soft_key_word(current_token)) {
                         push_token(Type::SOFT_KEYWORD);
                     } else {
-                        push_token(Type::WORD);
+                        push_token(Type::IDENTIFIER);
                     }
 
                     handleEmpty(ch);
@@ -358,7 +389,7 @@ namespace {
                     current_token.push_back(ch);
                     push_token(Type::ARITHMETICAL_OPERATOR);
                 } else {
-                    push_token(Type::STAR);
+                    push_token(Type::OPERATOR);
                     handleEmpty(ch);
                 }
             }
@@ -431,9 +462,17 @@ namespace {
             void handleIntegerLiteral(const char ch) {
                 if (std::isdigit(ch)) {
                     current_token.push_back(ch);
+                } if (ch == '.' && current_token.back() == '_') {
+                    state = State::ERROR;
+                    handleError(ch);
                 } else if (ch == '.') {
                     current_token.push_back(ch);
                     state = State::FLOAT_LITERAL;
+                } else if (ch == '_') {
+                    current_token.push_back(ch);
+                } else if (current_token.back() == '_') {
+                    state = State::ERROR;
+                    handleError(ch);
                 } else {
                     push_token(Type::LITERAL);
                     state = State::EMPTY;
@@ -463,6 +502,46 @@ namespace {
                 }
             }
 
+            void handleStringLiteral(const char ch) {
+                if (ch == '\n') {
+                    state = State::ERROR;
+                    handleError(ch);
+                }
+                if (ch == '"') {
+                    auto i = current_token.size() - 1;
+                    std::size_t n_slashes = 0;
+                    while (current_token[i] == '\\') {
+                        --i;
+                        ++n_slashes;
+                    }
+                    if (n_slashes % 2 == 0) {
+                        state = State::EMPTY;
+                        current_token.push_back(ch);
+                        push_token(Type::STRING_LITERAL);
+                    } else {
+                        current_token.push_back(ch);
+                    }
+                } else {
+                    current_token.push_back(ch);
+                }
+            }
+
+            void handleCharLiteral(const char ch) {
+                if (ch == '\\' && current_token.size() == 1) {
+                    current_token.push_back(ch);
+                    state = State::SPECIAL_SYMBOL_IN_CHAR_LITERAL;
+                } else if (current_token.size() == 1) {
+                    current_token.push_back(ch);
+                } else if (current_token.size() == 2 && ch == '\'') {
+                    state = State::EMPTY;
+                    current_token.push_back(ch);
+                    push_token(Type::STRING_LITERAL);
+                } else {
+                    state = State::ERROR;
+                    handleError(ch);
+                }
+            }
+
             void handleFloatLiteral(const char ch) {
                 if (std::isdigit(ch)) {
                     current_token.push_back(ch);
@@ -484,6 +563,35 @@ namespace {
                 }
             }
 
+            void handleSpecialChar(const char ch) {
+                if (current_token.size() == 2 && ch == 'u') {
+                    state = State::UNICODE_CHAR_LITERAL;
+                    current_token.push_back(ch);
+                } else if (current_token.size() == 2 && is_special_slash_symbol(ch)) {
+                    current_token.push_back(ch);
+                } else if (current_token.size() == 3 && ch == '\'') {
+                    current_token.push_back(ch);
+                    push_token(Type::STRING_LITERAL);
+                    state = State::EMPTY;
+                } else {
+                    state = State::ERROR;
+                    handleError(ch);
+                }
+            }
+
+            void handleUnicodeChar(const char ch) {
+                if (current_token.size() < 7 && is_hex_digit(ch)) {
+                    current_token.push_back(ch);
+                } else if (current_token.size() == 7 && ch == '\'') {
+                    current_token.push_back(ch);
+                    push_token(Type::STRING_LITERAL);
+                    state = State::EMPTY;
+                } else {
+                    state = State::ERROR;
+                    handleError(ch);
+                }
+            }
+
             void handleError(const char ch) {
                 state = State::EMPTY;
                 current_token.push_back(ch);
@@ -491,7 +599,12 @@ namespace {
             }
 
             void finish() {
-
+                if (state == State::MULTI_LINE_COMMENT) {
+                    state = State::ERROR;
+                    handleError('\n');
+                } else {
+                    handle('\n');
+                }
             }
 
         public:
