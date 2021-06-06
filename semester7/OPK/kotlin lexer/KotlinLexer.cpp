@@ -3,6 +3,7 @@
 #include <array>
 #include <unordered_map>
 #include <functional>
+#include <iostream>
 
 namespace {
 
@@ -204,6 +205,9 @@ namespace {
                 } else if (ch == '*') {
                     state = State::STAR;
                     current_token.push_back(ch);
+                } else if (ch == '/') {
+                    state = State::SLASH;
+                    current_token.push_back(ch);
                 } else if (ch == '.') {
                     state = State::POINT;
                     current_token.push_back(ch);
@@ -278,6 +282,7 @@ namespace {
             void handleMultiLineComment(const char ch) {
                 if (ch == '/' && current_token.size() > 1 && current_token.back() == '*') {
                     state = State::EMPTY;
+                    current_token.push_back(ch);
                     push_token(Type::COMMENT);
                 } else {
                     current_token.push_back(ch);
@@ -485,6 +490,9 @@ namespace {
                 push_token(Type::ERROR);
             }
 
+            void finish() {
+
+            }
 
         public:
             std::vector<Token> operator() (const std::string_view line) {
@@ -495,6 +503,8 @@ namespace {
                 for (const auto ch : line) {
                     handle(ch);
                 }
+
+                finish();
 
                 return std::move(tokens);
             }

@@ -11,6 +11,7 @@ int main() {
     std::string code((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
 
+    std::cout << code << std::endl;
     const auto tokens = KotlinLexer::run(code);
 
     for (const auto& [text, type] : tokens) {

@@ -10,7 +10,7 @@ class KotlinLexer {
 public:
     /// @todo string literals
     /// @todo char literals
-    /// @todo fix multi line comments
+    /// @todo underscores in numeric literals
     struct Token {
         enum class Type {
             HARD_KEYWORD,
@@ -21,6 +21,7 @@ public:
             OPERATOR, // non-arithmetical operators and punctuation marks
             STAR, // '*' -- can be used as operator and array unpacking
             LITERAL,
+            STRING_LITERAL, // string and char
             ERROR,
         };
 
