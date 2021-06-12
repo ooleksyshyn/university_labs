@@ -676,7 +676,7 @@ namespace {
             }
 
         public:
-            std::vector<Token> operator() (const std::string& code) {
+            std::vector<Token> operator() (const std::string_view code) {
                 tokens.clear();
                 current_token.clear();
                 state = State::EMPTY;
@@ -699,5 +699,44 @@ KotlinLexer::Token::Token(std::string&& text, Type type) noexcept : text{std::mo
 
 auto KotlinLexer::run(const std::string& code) -> std::vector<Token> {
     lexer_utils::KotlinLexerImpl impl;
-    return impl(code);
+    auto tokens = impl(code);
+
+    // handle code inside string literals
+    int i = 0;
+    while (i < tokens.size()) {
+        if (auto& token = tokens[i]; token.type == Token::Type::STRING_LITERAL) {
+            std::size_t j = 0;
+            while (j < token.text.size()) {
+                if (token.text[j] == '$' && token.text[j - 1] != '\\') {
+                    if (token.text[j + 1] == '{') {
+                    } else {
+                        ++j;
+                        const std::size_t start = j;
+                        while (std::isalnum(token.text[j]) || token.text[j] == '_') {
+                            ++j;
+                        }
+
+                        const std::string_view innerCode{token.text.data() + start, j - start};
+
+                        auto innerTokens = impl(innerCode);
+                        if (innerTokens.size() == 1) {
+                            const bool isIdentifier = innerTokens[0].type == Token::Type::IDENTIFIER;
+                            const bool isSoftKeyWord = innerTokens[0].type == Token::Type::SOFT_KEYWORD;
+                            if (isIdentifier || isSoftKeyWord) {
+                                tokens.insert(tokens.begin() + i + 1, std::move(innerTokens[0]));
+                            }
+                        } else if (innerTokens.size() > 1) {
+                            token.type = Token::Type::ERROR;
+                        }
+                    }
+                } else {
+                    ++j;
+                }
+            }
+        } else {
+            ++i;
+        }
+    }
+
+    return tokens;
 }

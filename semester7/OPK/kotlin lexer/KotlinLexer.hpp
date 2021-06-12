@@ -23,8 +23,8 @@ public:
 
         Token(std::string&& text, Type type) noexcept;
 
-        const std::string text;
-        const Type type;
+        std::string text;
+        Type type;
     };
 
     [[nodiscard]] static std::vector<Token> run(const std::string& code);
