@@ -1,0 +1,40 @@
+server:
+  port: ${PORT:8090}
+
+logging:
+  level:
+    com:
+      oop:
+        client:
+          KeycloakClient: DEBUG
+
+
+spring:
+  profiles:
+    active: ${APP_PROFILE:dev}
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payments
+    username: postgres
+    password: 131313
+    driver: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db/changelog/db.changeLog-master.xml
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    #show-sql: true
+  application:
+    name: core
+
+keycloak:
+  authServerUrl: http://localhost:8081/auth
+  realm: Lab-Realm
+  resource: payments-microservice
+  public-client: true
+  ssl-required: "none"
+
+keycloak-auth:
+  clientSecret: bc31868f-430d-4da8-ab13-b4f513e10b94
+  adminUsername: admin
+  adminPassword: admin
