@@ -13,9 +13,9 @@ spring:
   profiles:
     active: ${APP_PROFILE:dev}
   datasource:
-    url: jdbc:postgresql://localhost:5432/payments
-    username: postgres
-    password: 131313
+    url: jdbc:postgresql://localhost:5432/band_bd
+    username: bank_administrator
+    password: password
     driver: org.postgresql.Driver
   liquibase:
     change-log: classpath:/db/changelog/db.changeLog-master.xml

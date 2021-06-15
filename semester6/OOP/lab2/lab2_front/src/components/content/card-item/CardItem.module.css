@@ -1,0 +1,23 @@
+.btn__topUp{
+    color: white;
+    background-color: #5b8d2c;
+}
+
+.btn__transfer{
+    color: white;
+    background-color: #217271;
+}
+
+.btn__block{
+    color: white;
+    background-color: #a13737;
+}
+
+.btn__unblock{
+    color: white;
+    background-color: #6b34eb;
+}
+
+.card__blocked{
+    background-color: #ffabab;
+}

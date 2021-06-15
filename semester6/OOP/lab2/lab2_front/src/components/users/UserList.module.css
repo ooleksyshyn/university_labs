@@ -1,0 +1,14 @@
+.table{
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0px auto;
+}
+tr:nth-child(2n+1) {
+    background-color: #f3f3f3;
+}
+tr:nth-child(2n) {
+    background-color: #ffffff;
+}
+tr:hover{
+    background-color: #ffda60;
+}
