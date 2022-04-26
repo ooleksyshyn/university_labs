@@ -20,7 +20,7 @@
         <mapstruct.version>1.4.1.Final</mapstruct.version>
         <lombok.version>1.18.20</lombok.version>
         <testcontainers.version>1.15.0-rc2</testcontainers.version>
-        <keycloak.version>10.0.1</keycloak.version>
+        <keycloak.version>18.0.0</keycloak.version>
     </properties>
 
     <dependencyManagement>
