@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "react-bootstrap/Modal";
+import Modal from "react-bootstrap-modal/lib/Modal";
 import {Button} from "react-bootstrap";
 import {closeCreateCardModal, createCard} from "../../redux/reducers/cardsReducer";
 import {connect} from "react-redux";

@@ -21,11 +21,11 @@ public class KeycloakBuilderService {
     @Value("${keycloak-auth.clientSecret}")
     private String clientSecret;
 
-    @Value("${keycloak-auth.adminUsername}")
-    private String adminUsername;
+//    @Value("${keycloak-auth.adminUsername}")
+//    private String adminUsername;
 
-    @Value("${keycloak-auth.adminPassword}")
-    private String adminPassword;
+//    @Value("${keycloak-auth.adminPassword}")
+//    private String adminPassword;
 
     public Keycloak getKeycloak(String username, String password) {
         return KeycloakBuilder.builder()

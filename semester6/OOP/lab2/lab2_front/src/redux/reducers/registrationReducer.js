@@ -31,6 +31,7 @@ export default function registrationReducer(state=initialState, action) {
 }
 
 export function openRegistrationModal() {
+    console.log("Im here")
     return {type: REGISTRATION_MODAL_OPEN};
 }
 

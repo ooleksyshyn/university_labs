@@ -28,13 +28,13 @@ spring:
     name: core
 
 keycloak:
-  authServerUrl: http://localhost:8081/auth
-  realm: Lab-Realm
-  resource: payments-microservice
+  authServerUrl: http://localhost:8180/auth
+  realm: demo
+  resource: clientId
   public-client: true
   ssl-required: "none"
 
 keycloak-auth:
-  clientSecret: bc31868f-430d-4da8-ab13-b4f513e10b94
-  adminUsername: admin
-  adminPassword: admin
+  clientSecret: 669b7162-fd59-4518-a556-a2f8b10fcd0f
+  adminUsername: demo
+  adminPassword: password
